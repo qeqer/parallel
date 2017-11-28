@@ -1,2 +1,2 @@
 # parallel
-Parallel
+Parallel with OpenMP for cmc SKIPOD course
