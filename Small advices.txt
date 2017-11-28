@@ -6,6 +6,7 @@ I don't mean what's the difference, only that gpfs is faster and sometime is cle
 But i think it's copies. Don't mind about it and copy files on local machine)
 U need to connect: ssh edu-cmc-*@bluegene.hpc.cs.msu.ru
 If everything is okey with keys/proxies blablabla u'll see a helplist. READ IT!
+There's vim and emacs. I hate both and scp is fast. So u can use cat, it shows file to terminal)
 Copy u't file via scp: scp "u'rfile" edu-cmc*@bluegene.hpc.cs.msu.ru:~
 Now u have file in u'r home(~) diretory on bluegene. 
 Then u need a compile u'r cpp file: mpixlcxx_r -qsmp=omp skipod.cpp -o ski
