@@ -6,11 +6,10 @@
 #include <vector>
 
 using namespace std;
-
-vector<vector<float>> InitMatrix(uint row_num, uint col_num) 
+vector<vector<float> > InitMatrix(uint row_num, uint col_num) 
 {
 	srand(time(0));
-	vector<vector<float>> a(row_num, vector<float>(col_num));
+	vector<vector<float> > a(row_num, vector<float>(col_num));
 	for (uint i = 0; i < row_num; i++) 
 	{
 		for (uint j = 0; j < col_num; j++) 
@@ -20,9 +19,9 @@ vector<vector<float>> InitMatrix(uint row_num, uint col_num)
 	}
 	return a;
 }
-vector<vector<float>> FileInputMatr(const char *name)
+vector<vector<float> > FileInputMatr(const char *name)
 {
-	vector<vector<float>> a;
+	vector<vector<float> > a;
 	ifstream file(name);
 	int i = 0;
 	float d;
@@ -51,7 +50,7 @@ vector<vector<float>> FileInputMatr(const char *name)
 	return a;
 }
 template<class T>
-void FileOutMatr(vector<vector<T>> result) 
+void FileOutMatr(vector<vector<T> > result) 
 {
 	ofstream o("out");
 	for (uint i = 0; i < result.size(); i++) 
@@ -66,38 +65,16 @@ void FileOutMatr(vector<vector<T>> result)
 }
 
 template<class T>
-vector<vector<T>> MultMatr(vector<vector<T>> a, vector<vector<T>> b) {
-	vector<vector<float>> c(a.size(), vector<float>(b[0].size()));
+vector<vector<T> > MultMatrOpenMP(vector<vector<T> > a, 
+	vector<vector<T> > b, uint thread) {
+	vector<vector<float> > c(a.size(), vector<float>(b[0].size()));
 	if (a[0].size() != b.size())
 	{
 		cout << "I cann't multiply matrices, remember NxM and MxK = NxK" << endl;
 		exit(0);
 	}
-	for (uint i = 0; i < a.size(); i++) 
-	{
-		for (uint j = 0; j < b[0].size(); j++)
-		{
-			float temp = 0;
-			for (uint k = 0; k < b.size(); k++)
-			{
-				temp += a[i][k] * b[k][j];
-			}
-			c[i][j] = temp;
-		}
-	}
-	return c;
-}
-
-template<class T>
-vector<vector<T>> MultMatrOpenMP(vector<vector<T>> a, vector<vector<T>> b) {
-	vector<vector<float>> c(a.size(), vector<float>(b[0].size()));
-	if (a[0].size() != b.size())
-	{
-		cout << "I cann't multiply matrices, remember NxM and MxK = NxK" << endl;
-		exit(0);
-	}
-	#pragma omp parallel for 
-		for (uint i = 0; i < a.size(); i++) 
+	#pragma omp parallel for num_threads(thread) if (thread)
+		for (int i = 0; i < a.size(); i++) 
 		{
 			for (uint j = 0; j < b[0].size(); j++)
 			{
@@ -114,47 +91,49 @@ vector<vector<T>> MultMatrOpenMP(vector<vector<T>> a, vector<vector<T>> b) {
 
 #define iter 1
 template<class T>
-void Test(vector<vector<T>> A, vector<vector<T>> B) //compute average 
+void Test(vector<vector<T> > A, vector<vector<T> > B, uint thread) //compute average 
 //time by iter iterations
 {
-	auto sum = clock();
-	for (uint i = 0; i < iter; i++)
-	{
-		MultMatr(A, B);
+	cout << "Testing Multiplying Matrices of sizes: " << A.size() << " "
+		<< A[0].size() << " " << B.size() << " " << B[0].size() << endl;
+
+	for (int i = 0; i < iter; i++) {
+		auto sum = omp_get_wtime();	
+		MultMatrOpenMP(A, B, thread);
+		cout << "With " << thread << " threads: " <<  
+			static_cast<double>(omp_get_wtime() - sum) << endl;
 	}
-	cout << "Without OMP: " <<  static_cast<double>(clock() - sum) / 
-		iter / CLOCKS_PER_SEC << endl;
-	
-	sum = clock();
-	for (uint i = 0; i < iter; i++)
-	{
-		MultMatrOpenMP(A, B);
-	}
-	cout << "With OMP: " <<  static_cast<double>(clock() - sum) / 
-		iter / CLOCKS_PER_SEC << endl;
-	
 
 	return;
 }
 
 
-
-#define size_n 1000
-#define size_m 1000
-#define size_k 100
 int main(int argc, char **argv)
 {
+	uint size_n = 100, size_m = 100, size_k = 100;
 	char ans;
-	vector<vector<float>> A, B;
-	if (argc == 3)
+	vector<vector<float> > A, B;
+	if (argc == 3) //u should enter 2 file names with matricies 
+		//or 3 sizes or nothing
 	{
 		A = FileInputMatr(argv[1]);
 		B = FileInputMatr(argv[2]);
-	} else {
-		A = InitMatrix(size_n, size_m);
-		B = InitMatrix(size_m, size_k);		
+	} else if (argc == 4) 
+		{
+			sscanf(argv[1], "%u", &size_n);
+			sscanf(argv[2], "%u", &size_m);
+			sscanf(argv[3], "%u", &size_k);
+			A = InitMatrix(size_n, size_m);
+			B = InitMatrix(size_m, size_k);		
+		} else {
+			A = InitMatrix(size_n, size_m);
+			B = InitMatrix(size_m, size_k);
+		}
+	Test(A, B, 0);
+	for (int i = 1; i <= 2048; i = i * 2) 
+	{
+		Test(A, B, i);
 	}
-	Test(A, B);
-	//FileOutMatr(result);
+	//FileOutMatr(MultMatrOpenMP(A, B));
 	return 0;
 }
