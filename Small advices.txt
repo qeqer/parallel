@@ -2,28 +2,28 @@ Small advices:
 
 For bluegene:
 U have 2 directories: ~ aka /home/edu-cmc* and /gpfs/data/edu-cmc*
-I don't mean what's the difference, only that gpfs is faster and sometime is cleared.
+I don't know what's the difference, only that gpfs is faster and sometime is cleared.
 But i think it's copies. Don't mind about it and copy files on local machine)
 U need to connect: ssh edu-cmc-*@bluegene.hpc.cs.msu.ru
 If everything is okey with keys/proxies blablabla u'll see a helplist. READ IT!
 There's vim and emacs. I hate both and scp is fast. So u can use cat, it shows file to terminal)
-Copy u't file via scp: scp "u'rfile" edu-cmc*@bluegene.hpc.cs.msu.ru:~
-Now u have file in u'r home(~) diretory on bluegene. 
-Then u need a compile u'r cpp file: mpixlcxx_r -qsmp=omp skipod.cpp -o ski
-http://hpc.cs.msu.ru/bgp/development/compilers - about compilers on this wonder
-Then u should schedule it: mpisubmit.bg -n 1 -m smp -w 00:05:00 --stdout outfile ski -- u'r args
+Copy ur file via scp: scp "u'rfile" edu-cmc*@bluegene.hpc.cs.msu.ru:~
+Now u have file in ur home(~) diretory on bluegene. 
+Then u need a compile ur cpp file: mpixlcxx_r -qsmp=omp skipod.cpp -o ski
+http://hpc.cs.msu.ru/bgp/development/compilers - about compilers on this wonderwow
+Then u should schedule it: mpisubmit.bg -n 1 -m smp -w 00:05:00 --stdout outfile ski -- ur args
 About options u can read on: http://hpc.cs.msu.ru/bgp/jobs/mpisubmit
 There is a LoadLeverer, but there's some missunderstandings about llsubmit, don't mind about it
 Check: llq
-It's an queue. If there is no u'r job, it's completed) Or u'r fuck upped, u'r dummy and read what was written in terminal!
-Also check llq -b u'rtasknumlike11001111
+It's an queue. If there is no ur job, it's completed) Or u fuckupped, u'r dummy and read what was written in terminal!
+Also check llq -b urtasknumlike11001111
 U can see result in outfile)
-It's all u need for u'r task)
+It's all u need for ur task)
 Also: on bluegene only 4 threads((((
 
 For regatta: 
 ssh edu-cmc-skpod17-328-13@regatta.cs.msu.ru
 g++ -fopenmp -g skipod.cpp -o ski
-ompsubmit -n 1 -w 00:05:00 -stdout o1 -stderr e1 ski 100 100 100 1
+ompsubmit -n 1 -w 00:05:00 -stdout o1 -stderr e1 ski 100 100 100 16
 
 Extended: read on hpc.cs.msu.ru, it's not so shitty written as manuals on 3'rd mashgraph)))
