@@ -23,7 +23,8 @@ Also: on bluegene only 4 threads((((
 
 For regatta: 
 ssh edu-cmc-skpod17-328-13@regatta.cs.msu.ru
-g++ -fopenmp -g skipod.cpp -o ski
+g++ -fopenmp -g skipod.cpp -o ski -It's wrong!
+xlC_r -qsmp=omp skipod.cpp -o ski -It's right, maybe
 ompsubmit -n 1 -w 00:05:00 -stdout o1 -stderr e1 ski 100 100 100 16
 
 Extended: read on hpc.cs.msu.ru, it's not so shitty written as manuals on 3'rd mashgraph)))
